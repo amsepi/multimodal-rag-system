@@ -1,0 +1,9 @@
+streamlit
+openai
+pymupdf
+pytesseract
+sentence-transformers
+chromadb
+python-dotenv
+pillow
+langchain
