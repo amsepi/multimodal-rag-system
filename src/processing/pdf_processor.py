@@ -81,9 +81,10 @@ class PDFProcessor:
             
         return str(output_path)
 
-    def process(self) -> List[Dict]:
-        """Process PDF and return path to saved JSON"""
+    def process(self) -> List[Dict]:  # Change return type from str to List[Dict]
+        """Process PDF and return chunks"""
         text_data = self.extract_text()
         image_data = self.extract_images()
         all_chunks = text_data + image_data
-        return self.save_to_json(all_chunks)
+        self.save_to_json(all_chunks)  # Save but don't return path
+        return all_chunks  # Return actual chunks list
