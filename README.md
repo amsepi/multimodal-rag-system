@@ -1,26 +1,46 @@
 # Multimodal RAG System
 
-A powerful Retrieval-Augmented Generation (RAG) system that supports multimodal document processing and intelligent question answering. This system combines text and image processing capabilities with advanced language models to provide comprehensive answers to user queries.
+A comprehensive Retrieval-Augmented Generation (RAG) system that supports both text and image inputs, built with Streamlit, OpenAI, and LangChain.
 
 ## Features
 
-- **Multimodal Document Processing**: Handles both text and image content from documents
-- **Advanced RAG Pipeline**: Implements a sophisticated retrieval-augmented generation system
-- **Streamlit Web Interface**: User-friendly web application for document upload and querying
-- **Document Embedding**: Utilizes sentence transformers for efficient document indexing
-- **Vector Database**: Uses ChromaDB for storing and retrieving document embeddings
-- **Language Model Integration**: Leverages OpenAI's models for generating responses
-- **Visualization Tools**: Includes UMAP for document visualization and Plotly for interactive plots
+- **Multimodal Support**: Process both text and image inputs
+- **PDF Processing**: Extract and process text from PDF documents
+- **Vector Storage**: Store and retrieve embeddings using ChromaDB
+- **Evaluation Module**: Comprehensive evaluation capabilities including:
+  - BLEU score calculation
+  - ROUGE metrics
+  - Visualization of embeddings
+  - Test question evaluation
+- **Streamlit Interface**: User-friendly web interface for interaction
+
+## Project Structure
+
+```
+multimodal-rag-system/
+├── src/
+│   ├── app.py                 # Main Streamlit application
+│   ├── config/               # Configuration files
+│   ├── processing/           # Data processing modules
+│   └── evaluation/          # Evaluation module
+│       ├── metrics.py       # Evaluation metrics (BLEU, ROUGE)
+│       ├── visualisation.py # Embedding visualization
+│       └── test_questions.json # Test questions for evaluation
+├── data/                    # Directory for PDF files
+├── .streamlit/             # Streamlit configuration
+├── tests/                  # Test files
+└── requirements.txt        # Project dependencies
+```
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/multimodal-rag-system.git
+git clone https://github.com/amsepi/multimodal-rag-system.git
 cd multimodal-rag-system
 ```
 
-2. Create a virtual environment and activate it:
+2. Create and activate a virtual environment:
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -32,54 +52,44 @@ pip install -r requirements.txt
 ```
 
 4. Set up environment variables:
-Create a `.env` file in the root directory with the following variables:
-```
-OPENAI_API_KEY=your_openai_api_key
-```
-
-## Project Structure
-
-```
-multimodal-rag-system/
-├── src/
-│   ├── app.py              # Streamlit application
-│   ├── config/             # Configuration files
-│   ├── llm/                # Language model integration
-│   ├── processing/         # Document processing modules
-│   └── rag/                # RAG pipeline implementation
-├── tests/                  # Test files
-├── requirements.txt        # Project dependencies
-└── README.md              # This file
+- Create a `.streamlit/secrets.toml` file with your OpenAI API key:
+```toml
+openai_api_key = "your-api-key-here"
 ```
 
 ## Usage
 
-1. Start the Streamlit application:
+1. Place your PDF files in the `data` directory
+2. Run the Streamlit app:
 ```bash
 streamlit run src/app.py
 ```
 
-2. Open your web browser and navigate to the provided local URL (typically http://localhost:8501)
+3. Access the application through your web browser at `http://localhost:8501`
 
-3. Upload documents (PDF, images, or text files)
+## Evaluation
 
-4. Ask questions about the uploaded documents
+The system includes a comprehensive evaluation module that provides:
+
+- **Text Quality Metrics**: BLEU and ROUGE scores for generated responses
+- **Embedding Visualization**: Visual representation of document embeddings
+- **Test Questions**: Pre-defined test questions for system evaluation
+
+To run evaluations:
+1. Navigate to the "Evaluation" tab in the Streamlit interface
+2. Select the evaluation metrics to compute
+3. View the results and visualizations
 
 ## Dependencies
 
-- streamlit: Web application framework
-- openai: OpenAI API integration
-- pymupdf: PDF processing
-- pytesseract: OCR for image processing
-- sentence-transformers: Document embedding
-- chromadb: Vector database
-- python-dotenv: Environment variable management
-- pillow: Image processing
-- langchain: LLM framework
-- plotly: Interactive visualization
-- umap-learn: Dimensionality reduction
-- rouge: Text evaluation metrics
-- nltk: Natural language processing
+- streamlit
+- openai
+- langchain
+- chromadb
+- nltk
+- rouge-score
+- torchvision
+- Other dependencies listed in requirements.txt
 
 ## Contributing
 
