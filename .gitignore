@@ -24,3 +24,5 @@ data/
 *.egg-info/
 build/
 dist/
+.env
+src/config/settings.py
