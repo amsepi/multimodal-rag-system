@@ -132,9 +132,27 @@ def main():
                     )
                     
                     # Display results
+                    # Replace the existing response display code with:
                     st.subheader("📝 Answer")
-                    st.markdown(f"```{response}```")
-                    
+                    st.markdown(f"""
+                    <div class="response-box">
+                    {response}
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    # Show sources with improved styling
+                    st.subheader("🔍 Source References")
+                    for i, chunk in enumerate(context[:3]):
+                        with st.expander(f"📑 Source {i+1} - {chunk['metadata']['source']} (Page {chunk['metadata']['page']})", expanded=True if i==0 else False):
+                            st.caption(f"**Relevance Score:** {chunk['score']:.2f}")
+                            if chunk["metadata"]["type"] == "image":
+                                st.image(chunk["metadata"]["image_path"])
+                            st.markdown(f"""
+                            <div class="source-content">
+                            {chunk["content"][:500]}{'...' if len(chunk["content"]) > 500 else ''}
+                            </div>
+                            """, unsafe_allow_html=True)
+                                        
                     # Show sources
                     st.subheader("🔍 Sources")
                     for i, chunk in enumerate(context[:3]):  # Show top 3 sources
