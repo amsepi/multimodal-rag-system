@@ -19,21 +19,22 @@ class PDFProcessor:
         )
 
     def extract_text(self) -> List[Dict]:
-        """Extract text with page-wise metadata"""
         text_chunks = []
         for page_num, page in enumerate(self.doc):
             text = page.get_text()
+            if not text.strip():  # Add debug check
+                print(f"No text found on page {page_num+1}")
+                continue
+                
             chunks = self.text_splitter.split_text(text)
-            
-            for chunk in chunks:
-                text_chunks.append({
-                    "content": chunk,
-                    "metadata": {
-                        "source": os.path.basename(self.pdf_path),
-                        "page": page_num + 1,
-                        "type": "text"
-                    }
-                })
+            text_chunks.extend([{
+                "content": chunk,
+                "metadata": {
+                    "source": os.path.basename(self.pdf_path),
+                    "page": page_num + 1,
+                    "type": "text"
+                }
+            } for chunk in chunks])
         return text_chunks
 
     def extract_images(self, output_dir: str = "data/images") -> List[Dict]:
