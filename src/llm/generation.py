@@ -1,10 +1,14 @@
 from openai import OpenAI
 from typing import List, Dict
-from src.config.settings import settings
+#from src.config.settings import settings
+import os
 
 class ResponseGenerator:
     def __init__(self):
-        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        # Get API key from Streamlit secrets or environment
+        self.client = OpenAI(
+            api_key=os.getenv("OPENAI_API_KEY") or st.secrets["OPENAI_API_KEY"]
+        )
         
     def generate_response(self, query: str, context: List[Dict], strategy: str="cot") -> str:
         """Generate answer using specified prompting strategy"""

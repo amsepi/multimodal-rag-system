@@ -7,3 +7,7 @@ chromadb
 python-dotenv
 pillow
 langchain
+plotly
+umap-learn
+rouge
+nltk
