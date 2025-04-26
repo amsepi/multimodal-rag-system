@@ -1,0 +1,12 @@
+[
+    {
+        "question": "What was the net profit margin in 2023?",
+        "ground_truth_doc": "financials.pdf",
+        "reference_answer": "The 2023 net profit margin was 18.2% as shown on page 23."
+    },
+    {
+        "question": "What are the FYP submission deadlines?",
+        "ground_truth_doc": "FYPHandbook2023.pdf", 
+        "reference_answer": "Final submissions are due by May 15th (Page 45)."
+    }
+]
