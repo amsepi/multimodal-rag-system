@@ -122,18 +122,18 @@ def main():
             start_time = time.time()
             
             try:
-                # Retrieve context
+                # Retrieve context with enhanced retrieval
                 if query_text.strip():
-                    context = retriever.retrieve(query_text)
+                    context = retriever.retrieve_with_fallback(query_text, top_k=12)
                     query_type = "text"
                 else:
                     image = Image.open(uploaded_image)
-                    context = retriever.retrieve(image)
+                    context = retriever.retrieve_with_fallback(image, top_k=8)
                     query_type = "image"
                 
-                # Generate response
+                # Generate response with enhanced generation
                 if context:
-                    response = llm.generate_response(
+                    response = llm.generate_response_with_fallback(
                         query_text if query_type == "text" else "Explain this image",
                         context
                     )
