@@ -29,3 +29,24 @@ src/config/settings.py/
 
 # Streamlit secrets
 .streamlit/secrets.toml
+
+# HuggingFace cache
+~/.cache/huggingface/
+.cache/
+
+# ChromaDB
+.chromadb/
+
+# Model checkpoints
+*.ckpt
+*.pt
+*.bin
+
+# Data outputs
+/data/text/
+/data/images/
+
+# Jupyter and Python cache
+.ipynb_checkpoints/
+__pycache__/
+*.pyc

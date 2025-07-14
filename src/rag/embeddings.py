@@ -7,7 +7,7 @@ from typing import Union
 class MultimodalEmbedder:
     def __init__(self):
         # Text embedding model (upgraded)
-        self.text_model = SentenceTransformer('all-mpnet-base-v2')
+        self.text_model = SentenceTransformer('nvidia/NV-Embed-v2', trust_remote_code=True)
         
         # Image embedding model
         self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
@@ -39,3 +39,5 @@ class MultimodalEmbedder:
         except Exception as e:
             print(f"Error processing {image_path}: {str(e)}")
             return []
+        
+

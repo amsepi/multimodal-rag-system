@@ -13,4 +13,8 @@ rouge
 nltk
 rouge-score
 torch
+einops
+peft
+datasets
+
 

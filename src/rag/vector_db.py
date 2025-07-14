@@ -32,7 +32,7 @@ class VectorStore:
                     embedding = self.embedder.embed_text(chunk["content"])
                     
                     # Validate text embedding
-                    if not embedding or len(embedding) != 768:
+                    if not embedding or len(embedding) != 1024:
                         print(f"Skipping invalid text embedding: {chunk['content'][:50]}...")
                         continue
                     
@@ -54,7 +54,7 @@ class VectorStore:
                     )
                     
                     # Validate image embedding
-                    if not embedding or len(embedding) != 512:
+                    if not embedding or len(embedding) != 4096:
                         print(f"Skipping invalid image embedding: {chunk['metadata']['image_path']}")
                         continue
                     
