@@ -12,4 +12,5 @@ umap-learn
 rouge
 nltk
 rouge-score
-pytorch
+torch
+

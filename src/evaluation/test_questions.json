@@ -1,12 +1,52 @@
-[
-    {
-        "question": "What was the net profit margin in 2023?",
-        "ground_truth_doc": "financials.pdf",
-        "reference_answer": "The 2023 net profit margin was 18.2% as shown on page 23."
-    },
-    {
-        "question": "What are the FYP submission deadlines?",
-        "ground_truth_doc": "FYPHandbook2023.pdf", 
-        "reference_answer": "Final submissions are due by May 15th (Page 45)."
-    }
-]
+ [
+        {
+            "question": "According to the policy, what is a 'Surrogate Quote'?",
+            "ground_truth_doc": "PR-PO.pdf",
+            "reference_answer": "A 'Surrogate Quote' is a quotation that is inputted into the system by a Supply Chain Function (SCF) Buyer on behalf of a vendor, rather than being entered directly by the vendor into the system. This is detailed in Section 5, Definitions, on page 2."
+        },
+        {
+            "question": "Under what specific condition is Sealed Bidding required for procurement?",
+            "ground_truth_doc": "PR-PO.pdf",
+            "reference_answer": "Sealed bidding is used when the organization requires non-prop local services and the estimated Purchase Requisition (PR) value is equal to or exceeds PKR 25,000,000 (twenty-five million). This is stated in Section 7.2, Applicability, on page 5."
+        },
+        {
+            "question": "How many quotations are generally required for Non-Prop procurement cases?",
+            "ground_truth_doc": "PR-PO.pdf",
+            "reference_answer": "For all Non-Prop cases, a minimum of three quotations are required to proceed with the procurement. However, an SCF Unit Head can authorize proceeding with fewer than three if proper justification is provided, as mentioned in Section 9.3, points f and g, on page 8."
+        },
+        {
+            "question": "What is the rule regarding communication between an End User and a vendor during the technical evaluation phase?",
+            "ground_truth_doc": "PR-PO.pdf",
+            "reference_answer": "During the technical evaluation, the End User is prohibited from directly approaching vendors for meetings, presentations, or clarifications without the involvement of the Supply Chain Function. As stated in Section 10 on page 13, violating this rule can lead to disciplinary action."
+        },
+        {
+            "question": "Under what circumstances should a buyer negotiate with both the lowest and second-lowest suppliers?",
+            "ground_truth_doc": "PR-PO.pdf",
+            "reference_answer": "For procurements of Commodities where the total value in the CST equals or exceeds PKR 10 million and the price difference between the lowest and second-lowest supplier is below 10%, the Buyer is required to negotiate with both suppliers. This is specified in Section 12, point c, on page 18."
+        },
+        {
+            "question": "What is the allowable PO tolerance for the quantity of PVC / GI Pipes?",
+            "ground_truth_doc": "PR-PO.pdf",
+            "reference_answer": "The allowable PO tolerance for PVC / GI Pipes is 5%. This is listed in the table in Section 14.2, PO Tolerance, on page 23."
+        },
+        {
+            "question": "If an upward price change on a Purchase Order is due to currency devaluation, is a new Award Approval required?",
+            "ground_truth_doc": "PR-PO.pdf",
+            "reference_answer": "No, if an upward price change is due to currency devaluation, a new Award Approval is not required. However, the Buyer must provide a justification comparing the previous and revised currency, which must be attached to the amended PO. This is outlined in the table in Section 14.5 on page 24."
+        },
+        {
+            "question": "In a Reverse Auction, is the identity of competing vendors visible to other participants?",
+            "ground_truth_doc": "PR-PO.pdf",
+            "reference_answer": "No, in a Reverse Auction, the competition is anonymous. While the competing prices are visible to other vendors, the vendor names remain anonymous, as stated in Section 16, point c, on page 28."
+        },
+        {
+            "question": "What is the key difference between an 'Emergency' and an 'Urgency' as defined in the policy?",
+            "ground_truth_doc": "PR-PO.pdf",
+            "reference_answer": "An 'Emergency' is an unanticipated, perilous situation posing an immediate and significant threat to business operations, safety, or compliance. An 'Urgency' refers to time-sensitive matters that need prompt action, often due to a lack of planning, but does not carry the same level of immediate risk or severity. This distinction is made in Section 17 on page 29."
+        },
+        {
+            "question": "Due to governmental restrictions, quotations for makes/origins from which two countries are explicitly not to be quoted?",
+            "ground_truth_doc": "PR-PO.pdf",
+            "reference_answer": "Vendors are requested not to quote INDIAN or ISRAELI make/origin due to governmental restrictions, as stated in Section 32.1, point VII, on page 35."
+        }
+    ]

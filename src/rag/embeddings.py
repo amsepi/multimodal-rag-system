@@ -6,8 +6,8 @@ from typing import Union
 
 class MultimodalEmbedder:
     def __init__(self):
-        # Text embedding model
-        self.text_model = SentenceTransformer('all-MiniLM-L6-v2')
+        # Text embedding model (upgraded)
+        self.text_model = SentenceTransformer('all-mpnet-base-v2')
         
         # Image embedding model
         self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")

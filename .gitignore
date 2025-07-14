@@ -26,3 +26,6 @@ build/
 dist/
 .env/
 src/config/settings.py/
+
+# Streamlit secrets
+.streamlit/secrets.toml
