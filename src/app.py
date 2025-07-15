@@ -23,7 +23,8 @@ from src.rag.embeddings import MultimodalEmbedder
 from src.rag.vector_db import VectorStore
 from src.rag.retrieval import Retriever
 from src.llm.generation import ResponseGenerator
-from src.processing.pdf_processor import PDFProcessor
+from src.processing.md_parser import parse_pdf_to_markdown
+from src.processing.md_chunker import chunk_markdown_sentences
 from src.evaluation.visualisation import plot_embeddings, plot_search_results
 from src.evaluation.metrics import Evaluator
 
@@ -49,11 +50,13 @@ def handle_pdf_processing(vector_db):
         with st.spinner("Processing initial PDFs..."):
             pdf_files = [f for f in os.listdir("data") if f.endswith(".pdf")]
             progress_bar = st.progress(0)
-            
             for i, pdf_file in enumerate(pdf_files):
                 try:
-                    processor = PDFProcessor(os.path.join("data", pdf_file))
-                    chunks = processor.process()
+                    pdf_path = os.path.join("data", pdf_file)
+                    md_path = parse_pdf_to_markdown(pdf_path)
+                    chunks_json = chunk_markdown_sentences(md_path)
+                    with open(chunks_json) as f:
+                        chunks = json.load(f)
                     vector_db.add_documents(chunks)
                     progress_bar.progress((i+1)/len(pdf_files))
                 except Exception as e:
@@ -91,8 +94,10 @@ def main():
             for i, uploaded_file in enumerate(uploaded_files):
                 try:
                     file_path = save_uploaded_file(uploaded_file)
-                    processor = PDFProcessor(file_path)
-                    chunks = processor.process()
+                    md_path = parse_pdf_to_markdown(file_path)
+                    chunks_json = chunk_markdown_sentences(md_path)
+                    with open(chunks_json) as f:
+                        chunks = json.load(f)
                     vector_db.add_documents(chunks)
                     processing_bar.progress((i+1)/len(uploaded_files))
                     st.success(f"Processed: {uploaded_file.name}")
@@ -103,7 +108,7 @@ def main():
         st.markdown("---")
         st.markdown("### System Status")
         st.metric("Text Chunks", vector_db.text_collection.count())
-        st.metric("Image Chunks", vector_db.image_collection.count())
+       # st.metric("Image Chunks", vector_db.image_collection.count())
     
     # Main Interface
     st.title("🎓 UniRAG - University Document Assistant")
@@ -187,9 +192,12 @@ parsing_tab, eval_tab, vis_tab = st.tabs(["Parsing Visualization", "Evaluation M
 
 with parsing_tab:
     st.header("Parsing Visualization")
-    # Find the most recent chunked file in data/text/
+    # Find the most recent chunked file in data/ and data/text/
     import glob
-    chunk_files = sorted(glob.glob("data/text/*_chunks.json"), key=os.path.getmtime, reverse=True)
+    chunk_files = sorted(
+        glob.glob("data/*_chunks.json") + glob.glob("data/text/*_chunks.json"),
+        key=os.path.getmtime, reverse=True
+    )
     if chunk_files:
         chunk_file = chunk_files[0]
         st.markdown(f"**Showing parsed and chunked data from:** `{chunk_file}`")

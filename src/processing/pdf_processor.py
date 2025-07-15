@@ -1,67 +1,93 @@
 import os
-import requests
-import time
 from pathlib import Path
 from typing import List, Dict
 from langchain.text_splitter import MarkdownHeaderTextSplitter
-
-LLAMA_API_KEY = os.getenv("LLAMA_CLOUD_API_KEY")
-LLAMA_API_URL = "https://api.llamaindex.ai/api/parsing/parse"
+from llama_cloud_services import LlamaParse
 
 class PDFProcessor:
     def __init__(self, file_path: str, chunk_size: int = 256, chunk_overlap: int = 100):
         self.file_path = file_path
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
-        self.markdown_path = str(Path(file_path).with_suffix(".md"))
 
-    def parse_with_llamaparse(self) -> str:
-        """Send the file to LlamaParse API and get Markdown output."""
-        headers = {
-            "x-api-key": LLAMA_API_KEY,
-        }
-        files = {"file": open(self.file_path, "rb")}
-        data = {"output_format": "markdown"}
-        response = requests.post(LLAMA_API_URL, headers=headers, files=files, data=data)
-        if response.status_code != 200:
-            raise RuntimeError(f"LlamaParse API error: {response.status_code} {response.text}")
-        markdown = response.text
-        with open(self.markdown_path, "w") as f:
-            f.write(markdown)
-        return self.markdown_path
+    def process(self) -> List[Dict]:
+        md_path = str(Path(self.file_path).parent / (Path(self.file_path).stem + ".md"))
+        # If the markdown file already exists, skip parsing
+        if os.path.exists(md_path):
+            print(f"Markdown file {md_path} already exists. Skipping LlamaParse API call.")
+            with open(md_path, "r") as f:
+                all_markdown = f.read()
+            # We don't have page offsets if skipping, so fallback to page=None
+            page_offsets = None
+        else:
+            parser = LlamaParse(
+                api_key=os.getenv("LLAMA_CLOUD_API_KEY"),
+                verbose=True,
+                language="en"
+            )
+            print(f"Parsing {self.file_path} with LlamaParse (official client)...")
+            result = parser.parse(self.file_path)
+            # Get markdown nodes (one per page)
+            markdown_nodes = result.get_markdown_nodes(split_by_page=True)
+            print(f"Received {len(markdown_nodes)} markdown nodes from LlamaParse.")
+            # Combine all markdown for chunking, and record page offsets
+            all_markdown = ""
+            page_offsets = []  # list of (start, end) tuples for each page
+            curr = 0
+            for node in markdown_nodes:
+                page_text = node.text
+                start = curr
+                all_markdown += page_text + "\n\n"
+                curr = len(all_markdown)
+                end = curr
+                page_offsets.append((start, end))
+            # Save the combined markdown for reference
+            with open(md_path, "w") as f:
+                f.write(all_markdown)
+            print(f"Saved combined Markdown to {md_path}")
 
-    def chunk_markdown(self, markdown_path: str) -> List[Dict]:
-        """Chunk the Markdown file using a Markdown-aware splitter."""
-        with open(markdown_path, "r") as f:
-            markdown = f.read()
-        splitter = MarkdownHeaderTextSplitter(
-            chunk_size=self.chunk_size,
-            chunk_overlap=self.chunk_overlap
-        )
-        chunks = splitter.split_text(markdown)
+        # Only header-based splitting
+        headers_to_split_on = [
+            ("#", "Header 1"),
+            ("##", "Header 2"),
+            ("###", "Header 3"),
+            ("####", "Header 4"),
+            ("#####", "Header 5"),
+            ("######", "Header 6"),
+        ]
+        header_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+        sections = header_splitter.split_text(all_markdown)
+
         chunk_dicts = []
-        for i, chunk in enumerate(chunks):
+        for i, section in enumerate(sections):
+            text = section.page_content if hasattr(section, 'page_content') else str(section)
+            # Determine page number
+            if page_offsets is not None:
+                # Find the first page whose offset range contains the start of this chunk
+                chunk_start = all_markdown.find(text)
+                page_num = None
+                for idx, (start, end) in enumerate(page_offsets):
+                    if start <= chunk_start < end:
+                        page_num = idx + 1  # 1-based page number
+                        break
+            else:
+                page_num = None
             chunk_dicts.append({
-                "content": chunk,
+                "content": text,
                 "metadata": {
                     "source": os.path.basename(self.file_path),
                     "chunk_id": i,
-                    "chunk_length": len(chunk),
-                    "type": "markdown"
+                    "chunk_length": len(text),
+                    "type": "text",
+                    "page": page_num
                 }
             })
-        return chunk_dicts
+        print(f"Chunked into {len(chunk_dicts)} markdown header-based chunks.")
 
-    def process(self) -> List[Dict]:
-        print(f"Parsing {self.file_path} with LlamaParse...")
-        md_path = self.parse_with_llamaparse()
-        print(f"Saved Markdown to {md_path}")
-        chunks = self.chunk_markdown(md_path)
-        print(f"Chunked into {len(chunks)} markdown chunks.")
         # Optionally save to JSON
-        out_json = str(Path(self.file_path).with_suffix("_chunks.json"))
+        out_json = str(Path(self.file_path).parent / (Path(self.file_path).stem + "_chunks.json"))
         with open(out_json, "w") as f:
             import json
-            json.dump(chunks, f, indent=2)
+            json.dump(chunk_dicts, f, indent=2)
         print(f"Saved chunked data to {out_json}")
-        return chunks
+        return chunk_dicts
