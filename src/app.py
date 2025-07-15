@@ -1,5 +1,7 @@
 import streamlit as st
 from PIL import Image
+from dotenv import load_dotenv
+load_dotenv()
 import os
 import time
 import sys
@@ -7,6 +9,7 @@ import numpy as np
 import plotly.graph_objects as go
 from sklearn.preprocessing import LabelEncoder
 import json
+import re
 import nltk
 nltk.data.path.append('/Users/apollo3/nltk_data')
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -179,49 +182,57 @@ def main():
             except Exception as e:
                 st.error(f"Error processing request: {str(e)}")
             
-eval_tab, vis_tab = st.tabs(["Evaluation Metrics", "Visualization"])
+# Add a new tab for parsing visualization
+parsing_tab, eval_tab, vis_tab = st.tabs(["Parsing Visualization", "Evaluation Metrics", "Visualization"])
 
-with vis_tab:
-    st.header("Embedding Space Visualization")
-    
-    # Initialize system components
-    _, vector_db, _, _ = init_system()
-    
-    try:
-        # Initialize empty arrays with proper dimensions
-        text_embeddings = np.empty((0, 384))  # Sentence-BERT dimension
-        image_embeddings = np.empty((0, 512))  # CLIP dimension
-        text_labels = []
-        image_labels = []
-
-        # Load text embeddings
-        if vector_db.text_collection.count() > 0:
-            text_data = vector_db.text_collection.get(include=["embeddings"])
-            if text_data["embeddings"]:
-                text_embeddings = np.array(text_data["embeddings"])
-                text_labels = [f"Text: {m['source']} (p.{m['page']})" 
-                             for m in vector_db.text_collection.get()["metadatas"]]
-
-        # Load image embeddings
-        if vector_db.image_collection.count() > 0:
-            image_data = vector_db.image_collection.get(include=["embeddings"])
-            if image_data["embeddings"]:
-                image_embeddings = np.array(image_data["embeddings"])
-                image_labels = [f"Image: {m['source']} (p.{m['page']})" 
-                              for m in vector_db.image_collection.get()["metadatas"]]
-
-        # Create visualization
-        if text_embeddings.size > 0 or image_embeddings.size > 0:
-            fig = plot_embeddings(text_embeddings, image_embeddings, 
-                                 text_labels, image_labels)
-            st.plotly_chart(fig)
+with parsing_tab:
+    st.header("Parsing Visualization")
+    # Find the most recent chunked file in data/text/
+    import glob
+    chunk_files = sorted(glob.glob("data/text/*_chunks.json"), key=os.path.getmtime, reverse=True)
+    if chunk_files:
+        chunk_file = chunk_files[0]
+        st.markdown(f"**Showing parsed and chunked data from:** `{chunk_file}`")
+        with open(chunk_file) as f:
+            chunks = json.load(f)
+        # Markdown preview (first 3000 chars)
+        md_chunks = [c for c in chunks if c['metadata'].get('type') == 'markdown']
+        if md_chunks:
+            full_md = "\n\n".join([c['content'] for c in md_chunks])
+            st.subheader("Rendered Markdown Preview (first 3000 chars)")
+            st.markdown(full_md[:3000], unsafe_allow_html=True)
         else:
-            st.warning("Process documents to enable visualization")
+            st.info("No markdown chunks found.")
+        # Document outline (headings)
+        st.subheader("Document Outline (Headings)")
+        headings = []
+        for c in md_chunks:
+            for line in c['content'].splitlines():
+                m = re.match(r'^(#+) (.+)', line)
+                if m:
+                    level = len(m.group(1))
+                    text = m.group(2)
+                    headings.append((level, text))
+        if headings:
+            for level, text in headings:
+                st.markdown(f"{'  ' * (level-1)}- {text}")
+        else:
+            st.info("No headings found in markdown.")
+        # Chunk metadata table
+        st.subheader("Chunk Metadata Table (first 20 chunks)")
+        import pandas as pd
+        meta_df = pd.DataFrame([c['metadata'] for c in chunks[:20]])
+        st.dataframe(meta_df)
+        # Table preview (if any)
+        table_chunks = [c for c in chunks if 'table' in c['metadata'].get('type', '').lower() or '| ' in c['content']]
+        if table_chunks:
+            st.subheader("Detected Table Preview (first table chunk)")
+            st.markdown(table_chunks[0]['content'], unsafe_allow_html=True)
+        else:
+            st.info("No table chunks detected.")
+    else:
+        st.info("No chunked files found. Please process a document first.")
 
-    except Exception as e:
-        st.error(f"Visualization error: {str(e)}")
-
-# Modified Evaluation Tab
 with eval_tab:
     st.header("System Evaluation Metrics")
     if st.button("Run Comprehensive Evaluation"):
